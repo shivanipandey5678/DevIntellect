@@ -1,10 +1,6 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react"
+import { Home} from "lucide-react"
 import SidebarTabHeader from "./SidebarTabHeader"
 import { Separator } from "@/components/ui/separator"
-import { useNavigate } from "react-router-dom"
-
-import { useState } from "react";
-
 
 import {
   Sidebar,
@@ -29,48 +25,36 @@ const items = [
     url: "#",
     icon: Home,
   },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
+ 
+ 
  
 ]
 
 export function Chatright() {
   const { open } = useSidebar();
-  const [file, setFile] = useState(null);
+  const formData = new FormData();
   const handleFileChange = (event) => {
     const fileinput = event.target.files[0];
-    setFile(fileinput)
+    
     if (fileinput) {
+      formData.append("file", fileinput)
       console.log("Selected file:", fileinput);
       async function sendFile(){
-        const res= await fetch('http://localhost:5000/api/file',{
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: file })
-        });
-
-        const data = await res.json();
-        
-        setMessages([...messages, { role: 'user', content: file }, { role: 'ai', content: data.reply }]);
-        setInput('');
+        try {
+          const res= await fetch('http://localhost:5000/api/fileUpload',{
+            method: 'POST',
+           
+            body: formData
+          });
+  
+          const data = await res.json();
+          console.log("Server response:", data);
+         
+        } catch (error) {
+          console.log(error,'❌error at chatright')
+        }
+       
+   
       }
       sendFile()
     }

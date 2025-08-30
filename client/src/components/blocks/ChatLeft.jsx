@@ -8,7 +8,7 @@ import ReactMarkdown from 'react-markdown';
 
 const ChatLeft = () => {
   const SYSTEM_PROMPT = `
- You are a helpful assistant. - First, think about the question ("THINK"), then evaluate your options ("EVALUATE"), and finally respond clearly in several points ("ANSWER"). - Structure the response in clear steps, in bullet points, avoiding long paragraphs. - For long texts, start with a summary of 4-5 lines, then provide details in bullet points. - End with a question to continue or clarify.
+  You are a helpful assistant. - First, think about the question ("THINK"), then evaluate your options ("EVALUATE"), and finally respond clearly in several points ("ANSWER"). - Structure the response in clear steps, in bullet points, avoiding long paragraphs. - For long texts, start with a summary of 4-5 lines, then provide details in bullet points. - End with a question to continue or clarify.
 
 `
   const [messages, setMessages] = useState([]);
@@ -18,7 +18,7 @@ const ChatLeft = () => {
     const res = await fetch("http://localhost:5000/api/chat", {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: input , systemPrompt: SYSTEM_PROMPT })
+      body: JSON.stringify({ message: input, systemPrompt: SYSTEM_PROMPT })
     });
 
     const data = await res.json();
@@ -31,7 +31,7 @@ const ChatLeft = () => {
     <div className="relative h-screen flex flex-col gap-4 h overflow-hidden">
       {/* Top Header */}
       <div className="sticky top-0 z-50 backdrop-blur-md w-full bg-gray-100 dark:bg-gray-900 px-6 py-6 border flex justify-between ">
-        <div>              <AnimatedGradientText>Ask Anything...</AnimatedGradientText></div>
+        <div><AnimatedGradientText>Ask Anything...</AnimatedGradientText></div>
         <div className='flex gap-3'>
           <AnimatedThemeToggler />
           <User size={24} className="text-gray-600" />
@@ -55,8 +55,8 @@ const ChatLeft = () => {
             )}
             <div
               className={`pl-4 py-2 pr-8 rounded-2xl max-w-[70%] ${msg.role === "user"
-                  ? "bg-[var(--primary)] text-white"
-                  : "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                ? "bg-[var(--primary)] text-white"
+                : "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                 }`}
             >
               <ReactMarkdown>{msg.content}</ReactMarkdown>

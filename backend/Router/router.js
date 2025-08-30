@@ -1,34 +1,11 @@
 import express from 'express';
 const Router = express.Router();
-import { MultiFileLoader } from "langchain/document_loaders/fs/multi_file";
-import {
-  JSONLoader,
-  JSONLinesLoader,
-} from "langchain/document_loaders/fs/json";
-import { TextLoader } from "langchain/document_loaders/fs/text";
-import { CSVLoader } from "langchain/document_loaders/fs/csv";
+import chatWithBot from '../controllers/chatWithBot.js';
+import fileUpload from '../controllers/filesUpload.js';
+import multer from 'multer';
+const upload = multer({ dest: "uploads/" });
 
+Router.post('/chat',chatWithBot);
+Router.post('/fileUpload', upload.single("file") ,fileUpload);
 
-Router.post('/api/file',async(req,res)=>{
-    try {
-        const {file} = req.body;
-        if(!file){
-            return res.json({success:false,message:"please do provide file"})
-        }
-
-        const loader = new MultiFileLoader(
-            [
-                file
-            ],
-            {
-              ".json": (path) => new JSONLoader(path, "/texts"),
-              ".jsonl": (path) => new JSONLinesLoader(path, "/html"),
-              ".txt": (path) => new TextLoader(path),
-              ".csv": (path) => new CSVLoader(path, "text"),
-            }
-          );
-
-    } catch (error) {
-        res.json({success:false,message:error})
-    }
-})
+export default Router;
