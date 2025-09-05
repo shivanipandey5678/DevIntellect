@@ -6,7 +6,8 @@ import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
 import { TextLoader } from "langchain/document_loaders/fs/text"; 
 import { CSVLoader } from "@langchain/community/document_loaders/fs/csv";
 import { RecursiveCharacterTextSplitter } from "@langchain/textsplitters";
-console.log(process.env.QDRANT_URL)
+console.log(process.env.QDRANT_URL,"quardrant")
+
 
 
 async function loadAndUpload(filePath ,fileName){
@@ -34,7 +35,7 @@ async function loadAndUpload(filePath ,fileName){
 
     const vectorStore = new QdrantVectorStore({
         url:process.env.QDRANT_URL,
-        collectionName: "universalCollection",
+        collectionName: "TRY",
     
     });
 

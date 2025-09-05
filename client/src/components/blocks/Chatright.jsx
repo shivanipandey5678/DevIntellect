@@ -37,15 +37,16 @@ export function Chatright() {
     const fileinput = event.target.files[0];
     
     if (fileinput) {
-      formData.append("file", fileinput)
-      console.log("Selected file:", fileinput);
+      formData.append("CsvPath", fileinput)
+      console.log("Selected fileinput:", fileinput);
+      console.log("Selected formData:", formData);
       async function sendFile(){
         try {
-          const res= await fetch('http://localhost:5000/api/fileUpload',{
+          const res= await fetch('http://localhost:5000/api/load-csv',{
             method: 'POST',
-           
             body: formData
           });
+           
   
           const data = await res.json();
           console.log("Server response:", data);
@@ -111,7 +112,7 @@ export function Chatright() {
                 <label >
                   Upload
                   <input
-                    type="file"
+                    type="file" name="CsvPath" encType="multipart/form-data"
                     hidden
                     onChange={handleFileChange}
                   />
