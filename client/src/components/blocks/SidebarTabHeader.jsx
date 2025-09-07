@@ -6,31 +6,52 @@ import { Card } from "@/components/ui/card"
 import logo from '../../assets/raglogo.png'
 import { FaArrowLeft } from "react-icons/fa";
 import { useNavigate } from "react-router-dom"
+import {AppContext} from '../../context/AppContext.jsx'
+import { useContext } from "react"
+import { Loader2 } from 'lucide-react'
 
 
 const SidebarTabHeader = () => {
     const navigate = useNavigate();
     const [yLink,setYLink]=useState('');
     const [websiteLnk,setWebsiteLink]=useState('');
+    const [loadingLink, setLoadingLink] = useState(false); 
+    const {setCurrentContext} = useContext(AppContext)
 
     const handleYoutubeLink = async() => {
         try {
+            setLoadingLink(true)
+            if(!yLink || !yLink.trim()){
+                console.log("plz provide link first!")
+                setLoadingLink(false)
+                return null
+            }
+           
             const res = await fetch("http://localhost:5000/api/youtubelink", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ youtubeLink: yLink})
             });
-
-            const data = await res.json();
-            console.log(data)
             setYLink('')
+            setLoadingLink(false)
+            const data = await res.json();
+            console.log("👩‍💻👩‍💻👩‍💻👩‍💻👩‍💻👩‍💻⏳",data.data[0].metadata.title)
+            setCurrentContext((prev)=>[ ...prev,data.data[0].metadata.title])
+           
         } catch (error) {
+            setLoadingLink(false)
             console.log(error,"issue in handleYoutubeLink")
         }
     }
 
     const handleWebsiteLink = async() => {
         try {
+            setLoadingLink(true)
+            if(!websiteLnk || !websiteLnk.trim()){
+                console.log("plz provide link first!")
+                return null
+            }
+            
             const res = await fetch("http://localhost:5000/api/websitelink", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -38,9 +59,18 @@ const SidebarTabHeader = () => {
             });
 
             const data = await res.json();
-            console.log(data)
-            setYLink('')
+            setLoadingLink(false)
+            if (data.success) {
+                console.log("✅ Website indexed:", data.websiteName);
+                // context update karo
+                setCurrentContext((prev) => [...prev, data.websiteName]);
+            } else {
+                console.log("❌ Error:", data.message);
+            }
+    
+            setWebsiteLink('') // input clear
         } catch (error) {
+            setLoadingLink(false)
             console.log(error,"issue in handlewebsitelink")
         }
     }
@@ -64,15 +94,29 @@ const SidebarTabHeader = () => {
 
                 <TabsContent value="youtube">
                     <Card className="p-4">
-                        <Input placeholder="Enter YouTube line" value={yLink} onChange={(e)=>setYLink(e.target.value)}/>
-                        <Button className='cursor-pointer' onClick={handleYoutubeLink}>OK</Button>
+                        <Input placeholder="Enter YouTube link" value={yLink} onChange={(e)=>setYLink(e.target.value)}/>
+                        {
+                            loadingLink?(
+                                <Button className='cursor-pointer flex justify-center '  disabled={loadingLink} >  <Loader2 className="animate-spin text-white" size={16} />OK</Button>
+                            ):(
+                                <Button className='cursor-pointer flex justify-center ' onClick={handleYoutubeLink}> OK</Button>
+                            )
+                        }
+                       
                     </Card>
                 </TabsContent>
 
                 <TabsContent value="website">
                     <Card className="p-4">
                         <Input placeholder="Enter website link"  value={websiteLnk} onChange={(e)=>setWebsiteLink(e.target.value)}/>
-                        <Button className='cursor-pointer' onClick={handleWebsiteLink}>OK</Button>
+                        
+                        {
+                            loadingLink?(
+                                <Button className='cursor-pointer flex justify-center '  disabled={loadingLink} >  <Loader2 className="animate-spin text-white" size={16} />OK</Button>
+                            ):(
+                                <Button className='cursor-pointer flex justify-center ' onClick={handleWebsiteLink}> OK</Button>
+                            )
+                        }
                     </Card>
                 </TabsContent>
             </Tabs>

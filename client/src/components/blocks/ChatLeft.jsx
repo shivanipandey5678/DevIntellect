@@ -1,9 +1,11 @@
 import React from 'react';
 import { Send, User, Bot } from "lucide-react";
-import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler"
+// import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler"
 import { AnimatedGradientText } from "@/components/magicui/animated-gradient-text";
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { useTheme } from "next-themes";
+import {AnimatedThemeToggler} from '../blocks/animated-theme-toggler.jsx'
 
 
 const ChatLeft = () => {
@@ -15,6 +17,13 @@ const ChatLeft = () => {
   const [input, setInput] = useState("");
 
   async function sendMessage() {
+   
+    if(!input || !input.trim()){
+      return res.json({success:false,message:'please type something first!'})
+    }
+    setMessages((prev)=>[...prev, { role: 'user', content: input }]);
+    setInput('');
+    setMessages((prev)=>[...prev, { role: 'ai', content: 'Thinking ⏳' }]);
     const res = await fetch("http://localhost:5000/api/chat", {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -22,16 +31,22 @@ const ChatLeft = () => {
     });
 
     const data = await res.json();
-
-    setMessages([...messages, { role: 'user', content: input }, { role: 'ai', content: data.reply }]);
-    setInput('');
+    setMessages((prev) => [
+      ...prev.slice(0, -1), 
+      { role: "ai", content: data.reply },
+    ]);
+   
   }
-
+  const { theme, setTheme } = useTheme();
+  console.log("Current theme:", theme);
   return (
     <div className="relative h-screen flex flex-col gap-4 h overflow-hidden">
       {/* Top Header */}
       <div className="sticky top-0 z-50 backdrop-blur-md w-full bg-gray-100 dark:bg-gray-900 px-6 py-6 border flex justify-between ">
         <div><AnimatedGradientText>Ask Anything...</AnimatedGradientText></div>
+        <div>
+     
+    </div>
         <div className='flex gap-3'>
           <AnimatedThemeToggler />
           <User size={24} className="text-gray-600" />
@@ -52,12 +67,12 @@ const ChatLeft = () => {
             {/* Icon on left/right */}
             {msg.role === "ai" && (
               <Bot size={20} className="text-[var(--primary)] mt-1" />
-            )}
+            ) }
             <div
               className={`pl-4 py-2 pr-8 rounded-2xl max-w-[70%] ${msg.role === "user"
                 ? "bg-[var(--primary)] text-white"
                 : "bg-gray-200 dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-                }`}
+                } +   break-words whitespace-pre-wrap`}
             >
               <ReactMarkdown>{msg.content}</ReactMarkdown>
             </div>
@@ -81,6 +96,12 @@ const ChatLeft = () => {
           placeholder="Type your message..."
           value={input}
           onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e)=>{
+            if(e.key==='Enter'  && !e.shiftKey){
+              e.preventDefault();
+              sendMessage();
+            }
+          }}
         />
         <button className="min-w-8 aspect-square rounded bg-[var(--primary)] flex items-center justify-center p-2 cursor-pointer" onClick={sendMessage}>
           <Send size={20} className='text-white' />

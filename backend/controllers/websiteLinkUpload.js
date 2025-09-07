@@ -21,7 +21,7 @@ export async function websiteLinkController(req, res) {
       if (docs.length === 0 || !docs[0].pageContent.trim()) {
         console.log("⚡ Static load failed. Trying Puppeteer...");
         const puppeteerLoader = new PuppeteerWebBaseLoader(websiteLnk, {
-          launchOptions: { headless: true },
+         
           gotoOptions: { waitUntil: "domcontentloaded" },
         });
         docs = await puppeteerLoader.load();
@@ -57,11 +57,17 @@ export async function websiteLinkController(req, res) {
 
     console.log("✅ Website indexing completed!");
 
+    const websiteTitle =
+    docs[0]?.metadata?.title ||
+    docs[0]?.metadata?.source ||
+    websiteLnk;
+
     res.json({
       success: true,
       message: "Website processed and indexed successfully",
       docsCount: docs.length,
       chunksCount: chunks.length,
+      websiteName: websiteTitle,
     });
   } catch (error) {
     res.status(500).json({
