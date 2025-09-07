@@ -77,8 +77,8 @@ const SidebarTabHeader = () => {
     return (
         <div className='min-h-[30vh] mx-3 '>
             <div className='flex items-center  justify-between'>
-                    <FaArrowLeft className='cursor-pointer' onClick={()=>navigate('/')}/> 
                 <img src={logo} alt="logo" className='w-[80%]' />
+                    <FaArrowLeft className='cursor-pointer' onClick={()=>navigate('/')}/> 
               
              
                

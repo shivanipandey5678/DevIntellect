@@ -8,10 +8,11 @@ import {
 } from "@/components/ui/button"
 import raglogo from '../../assets/raglogo.png';
 import { useNavigate } from "react-router-dom"
+import { AnimatedThemeToggler } from "./animated-theme-toggler.jsx";
 
 
 
-import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler"
+// import { AnimatedThemeToggler } from "@/components/magicui/animated-theme-toggler"
 
 
 const Navbar = () => {
