@@ -47,7 +47,7 @@ export async function youtubelinkController(req, res) {
     }
 
 
-    console.log("💪💪💪",'Indexing of youtube video completed!!' );
+    console.log("💪💪💪",'Indexing of youtube video completed!!' ,docs);
   
     res.json({
         success: true,

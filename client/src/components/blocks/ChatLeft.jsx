@@ -67,9 +67,12 @@ const ChatLeft = () => {
             <Bot size={48} className="text-[var(--primary)] animate-bounce" />
 
             {/* Animated/fancy text */}
+          
+
             <AnimatedGradientText className="text-2xl font-bold">
-              Hello! Ask me anything 🤖
+              Hello! Ask me anything 
             </AnimatedGradientText>
+          
 
             {/* Supporting text */}
             <p className="text-gray-500 dark:text-gray-400 max-w-[400px]">

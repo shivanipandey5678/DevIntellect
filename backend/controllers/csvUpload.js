@@ -64,14 +64,15 @@ export const loadCSV = [
         loader = new CSVLoader(CsvPath);
       
          docs = await loader.load();
+         console.log("🟢CSV file hai",docs)
       } else if (mimetype === "application/pdf") {
         loader = new PDFLoader(CsvPath);
         docs = await loader.load();
-        console.log("PDF file hai");
+        console.log("⏳PDF file hai",docs);
       } else if (mimetype === "text/plain" || CsvPath.endsWith(".txt")) {
         loader = new TextLoader(CsvPath);
         docs = await loader.load();
-        console.log("Text file hai");
+        console.log("Text file hai👩‍💻",docs);
       } else {
         throw new Error("Unsupported file type");
       }

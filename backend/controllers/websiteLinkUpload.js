@@ -22,7 +22,8 @@ export async function websiteLinkController(req, res) {
         console.log("⚡ Static load failed. Trying Puppeteer...");
         const puppeteerLoader = new PuppeteerWebBaseLoader(websiteLnk, {
          
-          gotoOptions: { waitUntil: "domcontentloaded" },
+          gotoOptions: { waitUntil: "networkidle2", timeout: 60000 }, // wait until full JS load
+          launchOptions: { headless: "new" }, // optional
         });
         docs = await puppeteerLoader.load();
       }
@@ -55,7 +56,7 @@ export async function websiteLinkController(req, res) {
       });
     }
 
-    console.log("✅ Website indexing completed!");
+    console.log("✅ Website indexing completed!",);
 
     const websiteTitle =
     docs[0]?.metadata?.title ||
