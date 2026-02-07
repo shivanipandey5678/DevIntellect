@@ -28,52 +28,49 @@ const SidebarTabHeader = () => {
             }
            
             const res = await fetch("http://localhost:5000/api/youtubelink", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ youtubeLink: yLink})
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ youtubeLink: yLink }),
             });
-            setYLink('')
-            setLoadingLink(false)
             const data = await res.json();
-            console.log("👩‍💻👩‍💻👩‍💻👩‍💻👩‍💻👩‍💻⏳",data.data[0].metadata.title)
-            setCurrentContext((prev)=>[ ...prev,data.data[0].metadata.title])
-           
+            setYLink("");
+            setLoadingLink(false);
+            if (res.ok && data?.data?.[0]?.metadata?.title) {
+                setCurrentContext((prev) => [...prev, data.data[0].metadata.title]);
+            } else if (!res.ok) {
+                console.error("YouTube error:", data?.message || data?.error);
+            }
         } catch (error) {
-            setLoadingLink(false)
-            console.log(error,"issue in handleYoutubeLink")
+            setLoadingLink(false);
+            console.error(error, "issue in handleYoutubeLink");
         }
     }
 
-    const handleWebsiteLink = async() => {
+    const handleWebsiteLink = async () => {
         try {
-            setLoadingLink(true)
-            if(!websiteLnk || !websiteLnk.trim()){
-                console.log("plz provide link first!")
-                return null
+            setLoadingLink(true);
+            if (!websiteLnk || !websiteLnk.trim()) {
+                setLoadingLink(false);
+                return;
             }
-            
             const res = await fetch("http://localhost:5000/api/websitelink", {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ websiteLnk: websiteLnk})
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ websiteLnk: websiteLnk.trim() }),
             });
-
             const data = await res.json();
-            setLoadingLink(false)
-            if (data.success) {
-                console.log("✅ Website indexed:", data.websiteName);
-                // context update karo
-                setCurrentContext((prev) => [...prev, data.websiteName]);
+            setLoadingLink(false);
+            if (res.ok && data.success) {
+                setCurrentContext((prev) => [...prev, data.websiteName || websiteLnk]);
+                setWebsiteLink("");
             } else {
-                console.log("❌ Error:", data.message);
+                console.error("Website error:", data?.message || data?.error);
             }
-    
-            setWebsiteLink('') // input clear
         } catch (error) {
-            setLoadingLink(false)
-            console.log(error,"issue in handlewebsitelink")
+            setLoadingLink(false);
+            console.error(error, "issue in handleWebsiteLink");
         }
-    }
+    };
     return (
         <div className='min-h-[30vh] mx-3 '>
             <div className='flex items-center  justify-between'>

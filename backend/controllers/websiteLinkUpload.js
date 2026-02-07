@@ -31,14 +31,20 @@ export async function websiteLinkController(req, res) {
       throw new Error("Failed to load website content: " + err.message);
     }
 
-    // 🔹 Embeddings
+    if (docs.length === 0 || !docs[0].pageContent?.trim()) {
+      return res.status(422).json({
+        success: false,
+        message: "No readable content found on this URL. Try another page.",
+      });
+    }
+
     const embeddings = new OpenAIEmbeddings({
       apiKey: process.env.OPENAI_API_KEY,
     });
 
-    // 🔹 Chunking
-    const avgLength = docs.map(d => d.pageContent.length).reduce((a, b) => a + b, 0) / docs.length;
-    const chunkSize = avgLength < 200 ? 40 : 200;
+    const totalLen = docs.reduce((a, d) => a + (d.pageContent?.length || 0), 0);
+    const avgLength = totalLen / docs.length;
+    const chunkSize = Number.isFinite(avgLength) && avgLength < 200 ? 40 : 200;
 
     const splitter = new RecursiveCharacterTextSplitter({
       chunkSize,
@@ -46,8 +52,13 @@ export async function websiteLinkController(req, res) {
     });
 
     const chunks = await splitter.splitDocuments(docs);
+    if (chunks.length === 0) {
+      return res.status(422).json({
+        success: false,
+        message: "Could not extract text chunks from the page.",
+      });
+    }
 
-    // 🔹 Save in Qdrant in batches
     for (let i = 0; i < chunks.length; i += 100) {
       const batch = chunks.slice(i, i + 100);
       await QdrantVectorStore.fromDocuments(batch, embeddings, {

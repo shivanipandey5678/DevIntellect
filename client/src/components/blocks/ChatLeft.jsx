@@ -16,26 +16,35 @@ const ChatLeft = () => {
   const [input, setInput] = useState("");
 
   async function sendMessage() {
-    if (!input || !input.trim()) {
-      return res.json({
-        success: false,
-        message: "please type something first!",
-      });
-    }
-    setMessages((prev) => [...prev, { role: "user", content: input }]);
+    if (!input || !input.trim()) return;
+    const userMessage = input.trim();
+    setMessages((prev) => [...prev, { role: "user", content: userMessage }]);
     setInput("");
     setMessages((prev) => [...prev, { role: "ai", content: "Thinking ⏳" }]);
-    const res = await fetch("http://localhost:5000/api/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message: input, systemPrompt: SYSTEM_PROMPT }),
-    });
-
-    const data = await res.json();
-    setMessages((prev) => [
-      ...prev.slice(0, -1),
-      { role: "ai", content: data.reply },
-    ]);
+    try {
+      const res = await fetch("http://localhost:5000/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: userMessage }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setMessages((prev) => [
+          ...prev.slice(0, -1),
+          { role: "ai", content: `Error: ${data.error || res.statusText}` },
+        ]);
+        return;
+      }
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        { role: "ai", content: data.reply || "No response." },
+      ]);
+    } catch (err) {
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        { role: "ai", content: `Failed to send: ${err.message}` },
+      ]);
+    }
   }
 
   return (

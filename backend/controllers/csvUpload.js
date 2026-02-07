@@ -48,12 +48,14 @@ async function saveChunksInBatches(chunks, embeddings, batchSize = 200,originaln
 
 export const loadCSV = [
   upload.single("CsvPath"), // <-- multer middleware
-  async (doc, res) => {
+  async (req, res) => {
     try {
-      // multer se file ka path
-      const CsvPath = doc.file.path;
-      let originalname = doc.file.originalname;
-      let mimetype= doc.file.mimetype;
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+      const CsvPath = req.file.path;
+      const originalname = req.file.originalname;
+      const mimetype = req.file.mimetype;
       console.log("📂 File Path:", CsvPath);
       console.log("📂 File Name:", originalname);
       console.log("📂 MIME Type:", mimetype);

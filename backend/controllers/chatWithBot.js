@@ -109,7 +109,6 @@ const chatWithBot = async (req, res) => {
     });
 
     const data = await response.json();
-    message.append({role: "ai", content: data.choices[0].message.content })
     res.json({ reply: data.choices[0].message.content });
   } catch (error) {
     console.error("❌ Backend Error:", error);

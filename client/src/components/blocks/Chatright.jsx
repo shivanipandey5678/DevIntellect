@@ -28,47 +28,32 @@ import { useContext } from "react"
 export function Chatright() {
   const { open } = useSidebar();
   const [loadingFiles, setLoadingFiles] = useState([]); 
-  const formData = new FormData();
-  const {currentContext, setCurrentContext} = useContext(AppContext)
+  const { currentContext, setCurrentContext } = useContext(AppContext);
   
   const handleFileChange = (event) => {
     const fileinput = event.target.files[0];
-    
-    if (fileinput) {
-      formData.append("CsvPath", fileinput)
-    
+    if (!fileinput) return;
 
-      // Add file to loading state
-      setLoadingFiles((prev) => [...prev, fileinput.name]);
-    
-      console.log("Selected fileinput:", fileinput);
-      console.log("Selected formData:", formData);
-      async function sendFile(){
-        try {
-          const res= await fetch('http://localhost:5000/api/load-csv',{
-            method: 'POST',
-            body: formData
-          });
+    setLoadingFiles((prev) => [...prev, fileinput.name]);
+    const formData = new FormData();
+    formData.append("CsvPath", fileinput);
 
-          if (!res.ok) {
-            throw new Error("Server error");
-          }
-           
-  
-          const data = await res.json();
-          console.log("Server response:", data);
-
-          setLoadingFiles((prev)=>prev.filter((name)=> name !== fileinput.name))
-          setCurrentContext((prev)=>[ ...prev,fileinput.name])
-        } catch (error) {
-          console.log(error,'❌error at chatright');
-          setLoadingFiles((prev) => prev.filter((name) => name !== fileinput.name));
-        }
-       
-   
+    async function sendFile() {
+      try {
+        const res = await fetch("http://localhost:5000/api/load-csv", {
+          method: "POST",
+          body: formData,
+        });
+        if (!res.ok) throw new Error("Server error");
+        const data = await res.json();
+        setLoadingFiles((prev) => prev.filter((name) => name !== fileinput.name));
+        setCurrentContext((prev) => [...prev, fileinput.name]);
+      } catch (error) {
+        console.error(error, "error at chatright");
+        setLoadingFiles((prev) => prev.filter((name) => name !== fileinput.name));
       }
-      sendFile()
     }
+    sendFile();
   };
 
   return (
