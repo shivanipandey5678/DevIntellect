@@ -71,7 +71,21 @@ VITE_API_BASE_URL=http://localhost:5000
 
 ## Run
 
-1. **Backend** (from `backend/`):
+**Important:** Qdrant must be running before you upload files, add YouTube/website context, or chat. Otherwise you'll see "Vector DB (Qdrant) is not running".
+
+### 1. Start Qdrant (do this first)
+
+**Option A – Docker (recommended):**
+
+```bash
+docker run -p 6333:6333 qdrant/qdrant
+```
+
+Keep this terminal open. Qdrant will be at **http://localhost:6333**.
+
+**Option B –** Use [Qdrant Cloud](https://cloud.qdrant.io/) and set `QDRANT_URL` in `backend/.env` to your cluster URL.
+
+### 2. Backend (from `backend/`)
 
 ```bash
 npm run dev
@@ -79,7 +93,7 @@ npm run dev
 
 Runs on **http://localhost:5000**.
 
-2. **Frontend** (from `client/`):
+### 3. Frontend (from `client/`)
 
 ```bash
 npm run dev
@@ -87,7 +101,9 @@ npm run dev
 
 Runs on **http://localhost:5173**.
 
-3. Open **http://localhost:5173** in the browser. Go to **Chat**, add context (website link, YouTube link, or file), then ask questions.
+4. Open **http://localhost:5173** in the browser. Go to **Chat**, add context (website link, YouTube link, or file), then ask questions.
+
+If upload or chat fails with a message about Qdrant, ensure Qdrant is running (step 1) and `QDRANT_URL` in `backend/.env` is correct (e.g. `http://localhost:6333`).
 
 ## API Endpoints
 

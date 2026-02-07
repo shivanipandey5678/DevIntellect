@@ -15,38 +15,40 @@ const SidebarTabHeader = () => {
     const navigate = useNavigate();
     const [yLink,setYLink]=useState('');
     const [websiteLnk,setWebsiteLink]=useState('');
-    const [loadingLink, setLoadingLink] = useState(false); 
-    const {setCurrentContext} = useContext(AppContext)
+    const [loadingLink, setLoadingLink] = useState(false);
+    const [linkError, setLinkError] = useState("");
+    const { setCurrentContext } = useContext(AppContext);
 
-    const handleYoutubeLink = async() => {
+    const handleYoutubeLink = async () => {
+        setLinkError("");
         try {
-            setLoadingLink(true)
-            if(!yLink || !yLink.trim()){
-                console.log("plz provide link first!")
-                setLoadingLink(false)
-                return null
+            setLoadingLink(true);
+            if (!yLink || !yLink.trim()) {
+                setLoadingLink(false);
+                return;
             }
-           
             const res = await fetch("http://localhost:5000/api/youtubelink", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ youtubeLink: yLink }),
             });
             const data = await res.json();
-            setYLink("");
             setLoadingLink(false);
-            if (res.ok && data?.data?.[0]?.metadata?.title) {
-                setCurrentContext((prev) => [...prev, data.data[0].metadata.title]);
-            } else if (!res.ok) {
-                console.error("YouTube error:", data?.message || data?.error);
+            if (res.ok) {
+                const title = data?.data?.[0]?.metadata?.title || data?.data?.[0]?.metadata?.videoId || "YouTube video";
+                setCurrentContext((prev) => [...prev, title]);
+                setYLink("");
+            } else {
+                setLinkError(data?.message || data?.error || "YouTube failed");
             }
         } catch (error) {
             setLoadingLink(false);
-            console.error(error, "issue in handleYoutubeLink");
+            setLinkError(error.message || "Network error");
         }
-    }
+    };
 
     const handleWebsiteLink = async () => {
+        setLinkError("");
         try {
             setLoadingLink(true);
             if (!websiteLnk || !websiteLnk.trim()) {
@@ -64,11 +66,11 @@ const SidebarTabHeader = () => {
                 setCurrentContext((prev) => [...prev, data.websiteName || websiteLnk]);
                 setWebsiteLink("");
             } else {
-                console.error("Website error:", data?.message || data?.error);
+                setLinkError(data?.message || data?.error || "Website failed");
             }
         } catch (error) {
             setLoadingLink(false);
-            console.error(error, "issue in handleWebsiteLink");
+            setLinkError(error.message || "Network error");
         }
     };
     return (
@@ -91,29 +93,25 @@ const SidebarTabHeader = () => {
 
                 <TabsContent value="youtube">
                     <Card className="p-4">
-                        <Input placeholder="Enter YouTube link" value={yLink} onChange={(e)=>setYLink(e.target.value)}/>
-                        {
-                            loadingLink?(
-                                <Button className='cursor-pointer flex justify-center '  disabled={loadingLink} >  <Loader2 className="animate-spin text-white" size={16} />OK</Button>
-                            ):(
-                                <Button className='cursor-pointer flex justify-center ' onClick={handleYoutubeLink}> OK</Button>
-                            )
-                        }
-                       
+                        <Input placeholder="Enter YouTube link" value={yLink} onChange={(e)=>{ setYLink(e.target.value); setLinkError(""); }}/>
+                        {linkError && <p className="text-xs text-red-500 mt-1">{linkError}</p>}
+                        {loadingLink ? (
+                            <Button className="cursor-pointer flex justify-center mt-2" disabled><Loader2 className="animate-spin text-white" size={16} /> OK</Button>
+                        ) : (
+                            <Button className="cursor-pointer flex justify-center mt-2" onClick={handleYoutubeLink}>OK</Button>
+                        )}
                     </Card>
                 </TabsContent>
 
                 <TabsContent value="website">
                     <Card className="p-4">
-                        <Input placeholder="Enter website link"  value={websiteLnk} onChange={(e)=>setWebsiteLink(e.target.value)}/>
-                        
-                        {
-                            loadingLink?(
-                                <Button className='cursor-pointer flex justify-center '  disabled={loadingLink} >  <Loader2 className="animate-spin text-white" size={16} />OK</Button>
-                            ):(
-                                <Button className='cursor-pointer flex justify-center ' onClick={handleWebsiteLink}> OK</Button>
-                            )
-                        }
+                        <Input placeholder="Enter website link" value={websiteLnk} onChange={(e)=>{ setWebsiteLink(e.target.value); setLinkError(""); }}/>
+                        {linkError && <p className="text-xs text-red-500 mt-1">{linkError}</p>}
+                        {loadingLink ? (
+                            <Button className="cursor-pointer flex justify-center mt-2" disabled><Loader2 className="animate-spin text-white" size={16} /> OK</Button>
+                        ) : (
+                            <Button className="cursor-pointer flex justify-center mt-2" onClick={handleWebsiteLink}>OK</Button>
+                        )}
                     </Card>
                 </TabsContent>
             </Tabs>

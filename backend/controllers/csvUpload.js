@@ -1,13 +1,13 @@
 import dotenv from "dotenv";
 import multer from "multer";
 import fs from "fs";
-import { OpenAIEmbeddings } from "@langchain/openai"; 
+import { OpenAIEmbeddings } from "@langchain/openai";
 import { QdrantVectorStore } from "@langchain/qdrant";
 import { CSVLoader } from "@langchain/community/document_loaders/fs/csv";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { PDFLoader } from "@langchain/community/document_loaders/fs/pdf";
-
+import { getQdrantFriendlyMessage } from "../utils/qdrantError.js";
 
 dotenv.config();
 
@@ -83,12 +83,17 @@ export const loadCSV = [
      
      
       // Embeddings
+      if (!docs || docs.length === 0) {
+        return res.status(422).json({ error: "No content could be extracted from the file." });
+      }
+
       const embeddings = new OpenAIEmbeddings({
         apiKey: process.env.OPENAI_API_KEY,
       });
 
-      const avgLength = docs.map(d => d.pageContent.length).reduce((a, b) => a + b, 0) / docs.length;
-      const chunkSize = avgLength < 200 ? 40 : 200;
+      const totalLen = docs.reduce((a, d) => a + (d.pageContent?.length || 0), 0);
+      const avgLength = totalLen / docs.length;
+      const chunkSize = Number.isFinite(avgLength) && avgLength < 200 ? 40 : 200;
 
       // Split chunks
       const splitter = new RecursiveCharacterTextSplitter({
@@ -115,8 +120,12 @@ export const loadCSV = [
         chunksCount: chunks.length,
       });
     } catch (error) {
-      console.error("❌ Error:", error);
-      res.status(500).json({ error: "File processing failed" });
+      console.error("❌ File processing error:", error);
+      const message = getQdrantFriendlyMessage(error) || error.message || String(error);
+      res.status(500).json({
+        error: "File processing failed",
+        message,
+      });
     }
   },
 ];

@@ -27,13 +27,15 @@ import { useContext } from "react"
 
 export function Chatright() {
   const { open } = useSidebar();
-  const [loadingFiles, setLoadingFiles] = useState([]); 
+  const [loadingFiles, setLoadingFiles] = useState([]);
+  const [fileError, setFileError] = useState("");
   const { currentContext, setCurrentContext } = useContext(AppContext);
-  
+
   const handleFileChange = (event) => {
     const fileinput = event.target.files[0];
     if (!fileinput) return;
 
+    setFileError("");
     setLoadingFiles((prev) => [...prev, fileinput.name]);
     const formData = new FormData();
     formData.append("CsvPath", fileinput);
@@ -44,13 +46,16 @@ export function Chatright() {
           method: "POST",
           body: formData,
         });
-        if (!res.ok) throw new Error("Server error");
-        const data = await res.json();
+        const data = await res.json().catch(() => ({}));
         setLoadingFiles((prev) => prev.filter((name) => name !== fileinput.name));
-        setCurrentContext((prev) => [...prev, fileinput.name]);
+        if (res.ok) {
+          setCurrentContext((prev) => [...prev, fileinput.name]);
+        } else {
+          setFileError(data?.message || data?.error || "Upload failed");
+        }
       } catch (error) {
-        console.error(error, "error at chatright");
         setLoadingFiles((prev) => prev.filter((name) => name !== fileinput.name));
+        setFileError(error.message || "Upload failed");
       }
     }
     sendFile();
@@ -108,12 +113,12 @@ export function Chatright() {
         <Separator />
         {/* footer */}
         <SidebarFooter className={open ? "p-2" : "hidden"}>
+          {fileError && <p className="text-xs text-red-500 px-2 pb-1">{fileError}</p>}
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton className="rounded-2xl flex-1 px-4 py-5 bg-[var(--primary)] flex items-center justify-center text-white cursor-pointer hover:bg-[var(--primary)] hover:text-white ">
-                {/* label button ban gaya */}
-                <label >
-                  Upload
+                <label>
+                  Upload (CSV / PDF / TXT)
                   <input
                     type="file" name="CsvPath" encType="multipart/form-data"
                     hidden

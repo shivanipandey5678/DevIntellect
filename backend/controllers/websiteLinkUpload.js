@@ -3,6 +3,7 @@ import { PuppeteerWebBaseLoader } from "@langchain/community/document_loaders/we
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { QdrantVectorStore } from "@langchain/qdrant";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
+import { getQdrantFriendlyMessage } from "../utils/qdrantError.js";
 
 export async function websiteLinkController(req, res) {
   try {
@@ -82,9 +83,7 @@ export async function websiteLinkController(req, res) {
       websiteName: websiteTitle,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message || "Something went wrong",
-    });
+    const message = getQdrantFriendlyMessage(error) || error.message || "Something went wrong";
+    res.status(500).json({ success: false, message });
   }
 }

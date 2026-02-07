@@ -2,6 +2,7 @@ import fetch from "node-fetch";
 import dotenv from "dotenv";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { QdrantVectorStore } from "@langchain/qdrant";
+import { getQdrantFriendlyMessage } from "../utils/qdrantError.js";
 dotenv.config();
 console.log(
   process.env.OPENAI_API_KEY,
@@ -112,7 +113,8 @@ const chatWithBot = async (req, res) => {
     res.json({ reply: data.choices[0].message.content });
   } catch (error) {
     console.error("❌ Backend Error:", error);
-    res.status(500).json({ error: error.message });
+    const message = getQdrantFriendlyMessage(error) || error.message;
+    res.status(500).json({ error: message });
   }
 };
 
