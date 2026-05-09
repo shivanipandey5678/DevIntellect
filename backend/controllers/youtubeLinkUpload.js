@@ -10,7 +10,9 @@ dotenv.config();
 function getVideoId(urlOrId) {
   if (!urlOrId || typeof urlOrId !== "string") return null;
   const trimmed = urlOrId.trim();
-  const match = trimmed.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  const match = trimmed.match(
+    /(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/,
+  );
   if (match) return match[1];
   if (/^[a-zA-Z0-9_-]{11}$/.test(trimmed)) return trimmed;
   return null;
@@ -20,14 +22,17 @@ export async function youtubelinkController(req, res) {
   try {
     const { youtubeLink } = req.body;
     if (!youtubeLink || !youtubeLink.trim()) {
-      return res.status(400).json({ success: false, message: "YouTube link is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "YouTube link is required" });
     }
 
     const videoId = getVideoId(youtubeLink);
     if (!videoId) {
       return res.status(400).json({
         success: false,
-        message: "Invalid YouTube URL. Use format: https://www.youtube.com/watch?v=VIDEO_ID or https://youtu.be/VIDEO_ID",
+        message:
+          "Invalid YouTube URL. Use format: https://www.youtube.com/watch?v=VIDEO_ID or https://youtu.be/VIDEO_ID",
       });
     }
 
@@ -38,14 +43,18 @@ export async function youtubelinkController(req, res) {
       console.error("YouTube transcript error:", err);
       return res.status(400).json({
         success: false,
-        message: "Failed to get YouTube video transcription: " + (err.message || "Video may be private, have no captions, or the transcript API is unavailable."),
+        message:
+          "Failed to get YouTube video transcription: " +
+          (err.message ||
+            "Video may be private, have no captions, or the transcript API is unavailable."),
       });
     }
 
     if (!transcriptItems || transcriptItems.length === 0) {
       return res.status(422).json({
         success: false,
-        message: "No transcript available for this video (captions may be disabled).",
+        message:
+          "No transcript available for this video (captions may be disabled).",
       });
     }
 
@@ -84,8 +93,6 @@ export async function youtubelinkController(req, res) {
       });
     }
 
-    console.log("YouTube indexing completed for video:", videoId);
-
     res.json({
       success: true,
       message: "YouTube link processed successfully",
@@ -94,7 +101,10 @@ export async function youtubelinkController(req, res) {
     });
   } catch (error) {
     console.error("YouTube controller error:", error);
-    const message = getQdrantFriendlyMessage(error) || error.message || "Something went wrong";
+    const message =
+      getQdrantFriendlyMessage(error) ||
+      error.message ||
+      "Something went wrong";
     res.status(500).json({ success: false, message });
   }
 }

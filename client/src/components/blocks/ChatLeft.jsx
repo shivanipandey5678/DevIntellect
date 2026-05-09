@@ -7,6 +7,9 @@ import ReactMarkdown from "react-markdown";
 
 import { AnimatedThemeToggler } from "../blocks/animated-theme-toggler.jsx";
 
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:5000";
+
 const ChatLeft = () => {
   const SYSTEM_PROMPT = `
   You are a helpful assistant. - First, think about the question ("THINK"), then evaluate your options ("EVALUATE"), and finally respond clearly in several points ("ANSWER"). - Structure the response in clear steps, in bullet points, avoiding long paragraphs. - For long texts, start with a summary of 4-5 lines, then provide details in bullet points. - End with a question to continue or clarify.
@@ -22,7 +25,7 @@ const ChatLeft = () => {
     setInput("");
     setMessages((prev) => [...prev, { role: "ai", content: "Thinking ⏳" }]);
     try {
-      const res = await fetch("http://localhost:5000/api/chat", {
+      const res = await fetch(`${API_BASE_URL}/api/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userMessage }),
@@ -52,13 +55,11 @@ const ChatLeft = () => {
       {/* Top Header */}
       <div className="sticky top-0 z-50 backdrop-blur-md w-full bg-white/50 dark:bg-gray-900/50 border-b flex justify-between items-center px-6 py-4 shadow-md">
         {/* Left: Logo + Animated Text */}
-       
-          <AnimatedGradientText className="text-2xl font-bold">
-            Ask Anything...
-          </AnimatedGradientText>
-     
 
-      
+        <AnimatedGradientText className="text-2xl font-bold">
+          Ask Anything...
+        </AnimatedGradientText>
+
         <div className="flex gap-3 items-center">
           <AnimatedThemeToggler />
           <User
@@ -76,12 +77,10 @@ const ChatLeft = () => {
             <Bot size={48} className="text-[var(--primary)] animate-bounce" />
 
             {/* Animated/fancy text */}
-          
 
             <AnimatedGradientText className="text-2xl font-bold">
-              Hello! Ask me anything 
+              Hello! Ask me anything
             </AnimatedGradientText>
-          
 
             {/* Supporting text */}
             <p className="text-gray-500 dark:text-gray-400 max-w-[400px]">

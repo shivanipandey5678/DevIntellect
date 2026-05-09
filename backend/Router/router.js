@@ -8,7 +8,10 @@ import { youtubelinkController } from '../controllers/youtubeLinkUpload.js';
 import { websiteLinkController } from '../controllers/websiteLinkUpload.js';
 const upload = multer({ dest: "uploads/" });
 
-
+// Health check endpoint for deployment monitoring
+Router.get('/health', (req, res) => {
+  res.status(200).json({ status: 'OK', timestamp: new Date().toISOString() });
+});
 
 Router.post('/chat',chatWithBot);
 Router.post('/youtubelink' ,youtubelinkController);

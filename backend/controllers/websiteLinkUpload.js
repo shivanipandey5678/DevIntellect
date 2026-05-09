@@ -9,7 +9,9 @@ export async function websiteLinkController(req, res) {
   try {
     const { websiteLnk } = req.body;
     if (!websiteLnk) {
-      return res.status(400).json({ success: false, message: "Website link is required" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Website link is required" });
     }
 
     let docs = [];
@@ -20,9 +22,7 @@ export async function websiteLinkController(req, res) {
 
       // Step 2: Fallback to Puppeteer (for JS-rendered sites)
       if (docs.length === 0 || !docs[0].pageContent.trim()) {
-        console.log("⚡ Static load failed. Trying Puppeteer...");
         const puppeteerLoader = new PuppeteerWebBaseLoader(websiteLnk, {
-         
           gotoOptions: { waitUntil: "networkidle2", timeout: 60000 }, // wait until full JS load
           launchOptions: { headless: "new" }, // optional
         });
@@ -68,12 +68,8 @@ export async function websiteLinkController(req, res) {
       });
     }
 
-    console.log("✅ Website indexing completed!",);
-
     const websiteTitle =
-    docs[0]?.metadata?.title ||
-    docs[0]?.metadata?.source ||
-    websiteLnk;
+      docs[0]?.metadata?.title || docs[0]?.metadata?.source || websiteLnk;
 
     res.json({
       success: true,
@@ -83,7 +79,10 @@ export async function websiteLinkController(req, res) {
       websiteName: websiteTitle,
     });
   } catch (error) {
-    const message = getQdrantFriendlyMessage(error) || error.message || "Something went wrong";
+    const message =
+      getQdrantFriendlyMessage(error) ||
+      error.message ||
+      "Something went wrong";
     res.status(500).json({ success: false, message });
   }
 }

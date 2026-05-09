@@ -4,28 +4,22 @@ import { OpenAIEmbeddings } from "@langchain/openai";
 import { QdrantVectorStore } from "@langchain/qdrant";
 import { getQdrantFriendlyMessage } from "../utils/qdrantError.js";
 dotenv.config();
-console.log(
-  process.env.OPENAI_API_KEY,
-  "openai key at chatwithbot.js 🚀🚀🚀🚀🚀"
-);
 
 const chatWithBot = async (req, res) => {
   const { message } = req.body;
 
- 
   // Embeddings
   const embeddings = new OpenAIEmbeddings({
     apiKey: process.env.OPENAI_API_KEY,
   });
 
-  console.log("User final message message:", message);
   try {
     const vectorStore = await QdrantVectorStore.fromExistingCollection(
       embeddings,
       {
         url: process.env.QDRANT_URL,
         collectionName: "universalCollection",
-      }
+      },
     );
 
     const retrival = await vectorStore.asRetriever({ k: 3 });
@@ -33,8 +27,6 @@ const chatWithBot = async (req, res) => {
     const contextText = retrivedContext
       .map((doc) => doc.pageContent)
       .join("\n\n");
-    console.log(retrivedContext, "🔴");
-    console.log(contextText, "🟢");
 
     const systemPrompt = `
         you are a helpful assistant ! you can communicate them normally but if they ask you something which is not provided u as a context then you say polietly no i do not have context
@@ -113,8 +105,8 @@ const chatWithBot = async (req, res) => {
     res.json({ reply: data.choices[0].message.content });
   } catch (error) {
     console.error("❌ Backend Error:", error);
-    const message = getQdrantFriendlyMessage(error) || error.message;
-    res.status(500).json({ error: message });
+    // const message = getQdrantFriendlyMessage(error) || error.message;
+    res.status(500).json({ error: error.message });
   }
 };
 
